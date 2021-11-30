@@ -2,6 +2,8 @@ from flask import Flask, render_template, Response, request, redirect
 from werkzeug.utils import secure_filename
 import sys
 import os
+from os import listdir
+from os.path import isfile, join
 # Tornado web server
 from tornado.wsgi import WSGIContainer
 from tornado.httpserver import HTTPServer
@@ -34,17 +36,22 @@ def return_dict():
 # Initialize Flask.
 app = Flask(__name__)
 
+# Set folder for uploads
+UPLOAD_FOLDER = 'music/uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Get list of all uploaded songs
+songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
 
 #Route to render GUI
 @app.route('/')
 def show_entries():
     general_Data = {
         'title': 'Music Player'}
-    return render_template('simple.html')
+    return render_template('simple.html', songs=songs)
     
 
 # Upload mp3 file
-app.config['UPLOAD_FOLDER'] = 'music/uploads'
 app.config['MAX_CONTENT_PATH'] = 1000000000 # bytes (arbitrary for now)
 ALLOWED_EXTENSIONS = {'mp3','mp4'} # add to this
 
@@ -68,8 +75,17 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect('/')
+            return render_template(simple.html, songs=songs)
     return "success!"
+    
+
+# Spleeter
+@app.route('/spleeter', methods=['GET', 'POST'])
+def spleeter():
+    if request.method == 'POST':
+        # spleet it
+    
+        return # simple.html with audio files for each stem using jinja
 
 
 #launch a Tornado server with HTTPServer.
