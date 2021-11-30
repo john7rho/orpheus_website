@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Document</title>
+    <!--<link rel="stylesheet" href="{{ url_for('static', filename='simple.css') }}">-->
+    <script src="{{ url_for('static', filename='simple.js') }}"></script>
+</head>
+<body>
+    <div id="audioplay">
+        <b>VOCALS</b>
+        <audio id='vocals' src="https://drive.google.com/uc?export=open&id=1NOinekRBC0v5lz3KBiQFtEMpZWHY_SfK" type="audio/mp3" preload="auto" autobuffer controls></audio>
+        <b>BASS</b>
+        <audio id='bass' src="https://drive.google.com/uc?export=open&id=1WzE_wF87yMbQFM-DOHZRKGbWZxkfb02K" type="audio/mp3" preload="auto" autobuffer controls ></audio>
+        <b>DRUMS</b>
+        <audio id='drums' src="https://drive.google.com/uc?export=open&id=1JmL-UPCSaLDQtnLfj2U0BUoIDdKFVywr" type="audio/mp3" preload="auto" autobuffer controls></audio>
+        <b>PIANO</b>
+        <audio id='piano' src="https://drive.google.com/uc?export=open&id=1BR0AKNbFRbMDuLJ86I1ANT0eBT0WYcvp" type="audio/mp3" preload="auto" autobuffer controls></audio>
+        <b>OTHER</b>
+        <audio id='other' src="https://drive.google.com/uc?export=open&id=17BbXkwCUTJOWA2iFWwcA1L-NhNylSppA" type="audio/mp3" preload="auto" autobuffer controls></audio>
+        <button id='playaudio' onclick='playAudio()'>Play Audio</button>
+</body>
+</html>
