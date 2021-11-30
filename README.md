@@ -1,6 +1,4 @@
-# Simple Flask Music Streaming App 
-
-A simple Flask app for streaming music
+# Using Flask/Python backend and HTML/JavaScript/CSS frontend to create music splitter and stem player
 
 ## Getting Started
 
