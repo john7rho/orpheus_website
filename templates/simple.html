@@ -36,15 +36,30 @@
     <!-- Spleeter -->
     <form action="/spleeter" method="POST">
         <div class="mb-3">
-            <select class="form-select mx-auto w-auto" name="symbol">
+            <select class="form-select mx-auto w-auto" name="song">
                 <option disabled selected>Song</option>
                 {% for song in songs %}
-                    <option value="{{ song }}">{{ song.rsplit('.', 1)[0] | upper }}</option>
+                    <option value="{{ song }}">{{ song.rsplit('.', 1)[0] }}</option>
                 {% endfor %}
             </select>
             <button class="btn btn-primary" type="submit">Separate</button>
         </div>
     </form>
+    
+    
+    <!-- Testing: what are the outputs below. looks good  -->
+    {% for stem in stems %}
+        <p> The id is: {{ stem.split("/")[-1].split(".")[0] }} . The src is {{ stem }} . The type is audio/{{ stem.split("/")[-1].split(".")[1] }} .</p>
+    {% endfor %}
+    
+    <!-- Stems -->
+    {% for stem in stems %}
+        <b>{{ stem.split("/")[-1].split(".")[0] }}</b>
+        <!-- id is name of stem (there are only a few possible stem names -->
+        <audio id='{{ stem.split("/")[-1].split(".")[0] }}' preload="auto" autobuffer controls>
+            <source src="{{ stem }}" type="audio/{{ stem.split("/")[-1].split(".")[1] }}">
+        </audio>
+    {% endfor %}
     
 </body>
 </html>

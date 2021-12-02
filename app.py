@@ -37,8 +37,11 @@ def return_dict():
 app = Flask(__name__)
 
 # Set folder for uploads
-UPLOAD_FOLDER = 'music/uploads'
+UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Set folder for stems
+STEM_FOLDER = 'static/stems'
 
 # Get list of all uploaded songs
 songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
@@ -51,7 +54,7 @@ def show_entries():
     return render_template('simple.html', songs=songs)
     
 
-# Upload mp3 file
+# Upload mp3 file. in the future, save this to sql database
 app.config['MAX_CONTENT_PATH'] = 1000000000 # bytes (arbitrary for now)
 ALLOWED_EXTENSIONS = {'mp3','mp4'} # add to this
 
@@ -75,17 +78,46 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            # Update list of songs
+            songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
             return render_template(simple.html, songs=songs)
     return "success!"
-    
+
 
 # Spleeter
 @app.route('/spleeter', methods=['GET', 'POST'])
 def spleeter():
     if request.method == 'POST':
-        # spleet it
-    
-        return # simple.html with audio files for each stem using jinja
+        
+        # TODO: Alert the user that this may take a minute
+        
+        # TODO: stop the user from spleeting if a stem directory already exists. or at least do something that stops this from trying to make 2 folders with the same name.
+        
+        # Get song file path
+        song = request.form.get('song')
+        
+        # Correct path to include working directory
+        song_path = join(UPLOAD_FOLDER, song)
+        
+        # Isolate song name
+        song_name = song.rsplit('.', 1)[0]
+        
+        # New directory for song's stems
+        new_folder = join(STEM_FOLDER, song_name)
+        
+        # Make a directory for the song's stems
+        os.system(f"mkdir {new_folder}")
+        
+        # Spleet the song. TODO: PLEASE CHECK that this works (it should put stems in the stem folder)
+        os.system(f"spleeter separate -i {song_path} -p spleeter:2stems -o {new_folder}")
+
+        # Create list of stems. TODO: if spleeter works double check which file it sends the stems to. (it might send them to an 'output' folder under the new_folder)
+        stems = [f for f in listdir(new_folder) if isfile(join(new_folder, f))]
+        
+        # testing
+        test = [song_path]
+
+        return render_template("simple.html", songs=songs, stems=test)
 
 
 #launch a Tornado server with HTTPServer.
