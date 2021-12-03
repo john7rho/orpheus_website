@@ -117,6 +117,7 @@ def spleeter():
         # testing
         test = [song_path]
 
+
         return render_template("simple.html", songs=songs, stems=test)
 
 
