@@ -21,27 +21,15 @@ formatter = logging.Formatter(
 ch.setFormatter(formatter)
 root.addHandler(ch)
 
-
-def return_dict():
-    #Dictionary to store music file information
-    dict_here = [
-        {'id': 0, 'name': 'Bass', 'link': 'music/ybwm_bass.mp3', 'genre': 'N', 'rating': 4},
-        {'id': 1, 'name': 'Drums', 'link': 'music/ybwm_drums.mp3', 'genre': 'Bollywood', 'rating': 4},
-        {'id': 2, 'name': 'Vocals', 'link': 'music/ybwm_vocals.mp3', 'genre': 'Bollywood', 'rating': 4},
-        {'id': 3, 'name': 'Piano', 'link': 'music/ybwm_piano.mp3', 'genre': 'Bollywood', 'rating': 4},
-        {'id': 4, 'name': 'Other', 'link': 'music/ybwm_other.mp3', 'genre': 'Bollywood', 'rating': 4}
-        ]
-    return dict_here
-
 # Initialize Flask.
 app = Flask(__name__)
 
 # Set folder for uploads
-UPLOAD_FOLDER = 'static/uploads'
+UPLOAD_FOLDER = 'static\\uploads' # TODO path breaks depending on OS
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Set folder for stems
-STEM_FOLDER = 'static/stems'
+STEM_FOLDER = 'static\\stems' # TODO path breaks depending on OS - macOS works with single slashes
 
 # Get list of all uploaded songs
 songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
@@ -62,6 +50,7 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# TODO reject song if already uploaded
 @app.route('/uploader', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
@@ -79,8 +68,8 @@ def upload_file():
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             # Update list of songs
-            songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
-            return render_template(simple.html, songs=songs)
+            songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))] # need to append
+            return render_template("simple.html", songs=songs)
     return "success!"
 
 
@@ -100,7 +89,7 @@ def spleeter():
         song_path = join(UPLOAD_FOLDER, song)
         
         # Isolate song name
-        song_name = song.rsplit('.', 1)[0]
+        song_name = song.rsplit('.', 1)[0] # TODO write better code
         
         # New directory for song's stems
         new_folder = join(STEM_FOLDER, song_name)
@@ -109,7 +98,7 @@ def spleeter():
         os.system(f"mkdir {new_folder}")
         
         # Spleet the song. TODO: PLEASE CHECK that this works (it should put stems in the stem folder)
-        os.system(f"spleeter separate -i {song_path} -p spleeter:2stems -o {new_folder}")
+        os.system(f"spleeter separate {song_path} -p spleeter:5stems -o {new_folder}")
 
         # Create list of stems. TODO: if spleeter works double check which file it sends the stems to. (it might send them to an 'output' folder under the new_folder)
         stems = [f for f in listdir(new_folder) if isfile(join(new_folder, f))]
@@ -117,8 +106,10 @@ def spleeter():
         # testing
         test = [song_path]
 
+        # add the songs
+        songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
 
-        return render_template("simple.html", songs=songs, stems=test)
+        return render_template("simple.html", songs=songs, stems=stems)
 
 
 #launch a Tornado server with HTTPServer.

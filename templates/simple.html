@@ -14,17 +14,20 @@
 <body>
     <div id="audioplay">
         <b>VOCALS</b>
-        <audio id='vocals' src="https://drive.google.com/uc?export=open&id=1NOinekRBC0v5lz3KBiQFtEMpZWHY_SfK" type="audio/mp3" preload="auto" autobuffer controls></audio>
+        <audio id='vocals' src="/static/stems/random_song/random_song/vocals.wav" type="audio/wav" preload="auto" autobuffer controls></audio>
         <b>BASS</b>
-        <audio id='bass' src="https://drive.google.com/uc?export=open&id=1WzE_wF87yMbQFM-DOHZRKGbWZxkfb02K" type="audio/mp3" preload="auto" autobuffer controls ></audio>
+        <audio id='bass' src="/static/stems/random_song/random_song/bass.wav" type="audio/wav" preload="auto" autobuffer controls ></audio>
         <b>DRUMS</b>
-        <audio id='drums' src="https://drive.google.com/uc?export=open&id=1JmL-UPCSaLDQtnLfj2U0BUoIDdKFVywr" type="audio/mp3" preload="auto" autobuffer controls></audio>
+        <audio id='drums' src="/static/stems/random_song/random_song/drums.wav" type="audio/wav" preload="auto" autobuffer controls></audio>
         <b>PIANO</b>
-        <audio id='piano' src="https://drive.google.com/uc?export=open&id=1BR0AKNbFRbMDuLJ86I1ANT0eBT0WYcvp" type="audio/mp3" preload="auto" autobuffer controls></audio>
+        <audio id='piano' src="/static/stems/random_song/random_song/piano.wav" type="audio/wav" preload="auto" autobuffer controls></audio>
         <b>OTHER</b>
-        <audio id='other' src="https://drive.google.com/uc?export=open&id=17BbXkwCUTJOWA2iFWwcA1L-NhNylSppA" type="audio/mp3" preload="auto" autobuffer controls></audio>
-        <button id='playaudio' onclick='playAudio()'>Play Audio</button>
+        <audio id='other' src="/static/stems/random_song/random_song/other.wav" type="audio/wav" preload="auto" autobuffer controls></audio>
     </div>
+
+    <button id='playaudio' onclick='playAudio()'>Play Audio</button>
+    <button id='stopaudio' onclick='stopAudio()'>Stop Audio</button>
+    <button id='refreshaudio' onclick='refreshAudio()'>Refresh Audio</button>
     
     <!-- upload file -->
     <form action = "http://localhost:5000/uploader" method = "POST"
@@ -36,16 +39,20 @@
     <!-- Spleeter -->
     <form action="/spleeter" method="POST">
         <div class="mb-3">
-            <select class="form-select mx-auto w-auto" name="song">
+            <select id = "chosen_song" class="form-select mx-auto w-auto" name="song">
                 <option disabled selected>Song</option>
                 {% for song in songs %}
-                    <option value="{{ song }}">{{ song.rsplit('.', 1)[0] }}</option>
+                    <option id = song_name value="{{ song }}">{{ song.rsplit('.', 1)[0] }}</option>
                 {% endfor %}
             </select>
             <button class="btn btn-primary" type="submit">Separate</button>
         </div>
     </form>
     
+    <div class="ocean">
+        <div class="wave"></div>
+        <div class="wave"></div>
+    </div>
     
     <!-- Testing: what are the outputs below. looks good  -->
     {% for stem in stems %}
@@ -60,6 +67,5 @@
             <source src="{{ stem }}" type="audio/{{ stem.split("/")[-1].split(".")[1] }}">
         </audio>
     {% endfor %}
-    
 </body>
 </html>
