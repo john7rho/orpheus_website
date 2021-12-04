@@ -1,5 +1,13 @@
 # Using Flask/Python backend and HTML/JavaScript/CSS frontend to create music splitter and stem player
 
+## Description
+
+This website allows a user to upload any song as a MP3 file, separating the song into 5 separate "stems" that represent the vocals, bass, drums, piano, and other instruments of the original file. We have incorporated a tool called Spleeter by Deezer that is able to split a song into its components. For legal reasons (e.g., copyright laws), users can only upload songs that they rightfully own and are allowed to modify. Once the song is separated, users can then play the song and mute certain stems to modify their listening experience. For example, it is possible to mute the vocals during particular moments of the song to create a "karaoke" effect for a large audience of listeners.
+
+## Use cases
+
+There are many applications of this project. For example, users can use the website as their personal "band." They can mute the drums of a track, for instance, and play the drums themselves, allowing them to create a more immersive performance. Similarly, it is possible to isolate just the vocals, allowing music producers to overlay the vocals to new instrumentals. Primarily, we have experimented using the tool in group karaoke settings, in which we have strategically muted the vocals of the song as our own "DJs" in order to immerse ourselves more deeply into the songs. 
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.

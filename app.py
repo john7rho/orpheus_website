@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, request, redirect
+from flask import Flask, render_template, Response, request, redirect, flash
 from werkzeug.utils import secure_filename
 import sys
 import os
@@ -23,6 +23,7 @@ root.addHandler(ch)
 
 # Initialize Flask.
 app = Flask(__name__)
+app.secret_key = 'secretkey'
 
 # Set folder for uploads
 UPLOAD_FOLDER = 'static\\uploads' # TODO path breaks depending on OS
@@ -46,9 +47,14 @@ def show_entries():
 app.config['MAX_CONTENT_PATH'] = 1000000000 # bytes (arbitrary for now)
 ALLOWED_EXTENSIONS = {'mp3','mp4'} # add to this
 
+# Allow file if it is a file type in the allowed extensions
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Do not allow more than one period in a file's name
+def allowed_name(filename):
+    return len(filename.split('.')) == 2
 
 # TODO reject song if already uploaded
 @app.route('/uploader', methods=['GET', 'POST'])
@@ -64,7 +70,10 @@ def upload_file():
         if file.filename == '':
             flash('No selected file')
             return redirect('/')
-        if file and allowed_file(file.filename):
+        if (allowed_name(file.filename) == False):
+            flash('File name must not have period outside of file type extension')
+            return redirect('/')
+        if file and allowed_file(file.filename) and allowed_name(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             # Update list of songs

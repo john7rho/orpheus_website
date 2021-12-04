@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Document</title>
+    <title>Orpheus</title> <!--Add logo at the top-->
     <!--<link rel="stylesheet" href="{{ url_for('static', filename='simple.css') }}">-->
     <script src="{{ url_for('static', filename='simple.js') }}"></script>
     <!-- http://getbootstrap.com/docs/5.1/ -->
@@ -12,6 +12,15 @@
     <link href="/static/favicon.ico" rel="icon">
 </head>
 <body>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul class=flashes>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
     <div id="audioplay">
         <b>VOCALS</b>
         <audio id='vocals' src="/static/stems/random_song/random_song/vocals.wav" type="audio/wav" preload="auto" autobuffer controls></audio>
