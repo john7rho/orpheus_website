@@ -1,9 +1,5 @@
-<<<<<<< Updated upstream
-from flask import Flask, render_template, Response, request, redirect
-=======
 from flask import Flask, render_template, Response, request, redirect, flash, session
 from flask_session import Session
->>>>>>> Stashed changes
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
@@ -30,7 +26,6 @@ formatter = logging.Formatter(
 ch.setFormatter(formatter)
 root.addHandler(ch)
 
-
 # Initialize Flask.
 app = Flask(__name__)
 
@@ -45,9 +40,6 @@ ALLOWED_EXTENSIONS = {'mp3','mp4'} # add to this
 # Set folder for stems
 STEM_FOLDER = 'static/stems' # TODO path breaks depending on OS - macOS works with single slash
 PITCHED_FOLDER = 'static/pitched'
-
-# Get list of all uploaded songs
-songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
@@ -220,8 +212,6 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/uploader', methods=['GET', 'POST'])
-
 # Do not allow more than one period in a file's name
 def allowed_name(filename):
     return len(filename.split('.')) == 2
@@ -229,7 +219,6 @@ def allowed_name(filename):
 # TODO reject song if already uploaded
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
->>>>>>> Stashed changes
 def upload_file():
 
     if request.method == 'POST': # TODO: there's no else here. what's up w that?
@@ -245,33 +234,18 @@ def upload_file():
         # empty file without a filename.
         if file.filename == '':
             flash('No selected file')
-<<<<<<< Updated upstream
-            return redirect('/')
+            return redirect('/upload')
+
         if file and allowed_file(file.filename):
-=======
-            return redirect('/upload')
-            
-        if (allowed_name(file.filename) == False):
-            flash('File name must not have period outside of file type extension')
-            return redirect('/upload')
-            
-        if file and allowed_file(file.filename) and allowed_name(file.filename):
->>>>>>> Stashed changes
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            
+    
             # Update list of songs
-<<<<<<< Updated upstream
-            songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
-            return render_template(simple.html, songs=songs)
-    return "success!"
-=======
             pathless_songs = db.execute("SELECT song FROM songs WHERE user_id=?", session["user_id"])[0]["song"]
             song_paths = [UPLOAD_FOLDER + "/" + song for song in pathless_songs]
->>>>>>> Stashed changes
 
             return render_template("index.html", songs=song_paths)
-            
+
     else:
         return render_template("upload.html")
 
@@ -305,12 +279,7 @@ def spleeter():
 
         # Create list of stems. TODO: if spleeter works double check which file it sends the stems to. (it might send them to an 'output' folder under the new_folder)
         stems = [f for f in listdir(new_folder) if isfile(join(new_folder, f))]
-        
-        # testing
-        test = [song_path]
 
-<<<<<<< Updated upstream
-=======
         # add the songs
         songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
 
@@ -355,7 +324,6 @@ def shifter():
         #TODO only let the pitch work if song is already spleeted
         
         #TODO add a blending feature also to blend in background vocals
->>>>>>> Stashed changes
 
         return render_template("simple.html", songs=songs, stems=test)
 
