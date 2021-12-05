@@ -16,7 +16,7 @@ The Spleeter tool runs into compatability issues on M1 Macs. However, the functi
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-### Prerequisites
+## Prerequisites
 
 What things you need to install the software and how to install them
 
@@ -25,8 +25,9 @@ Python 3
 Flask
 Tornado Web Server
 ```
+We also recommend using a virtual environment using Anaconda Navigator; however, we do not require it.
 
-### Installing
+## Installing
 
 Installing dependencies 
 ```
@@ -36,6 +37,18 @@ Once all packages are downloaded and installed run.
 
 ```
 python app.py
+```
+
+## Installing the Pitch Shifter
+
+This portion allows us to pitch up songs without changing the speed. Note: Python 3.7+ is required. To install, make sure to follow the steps below:
+
+```
+
+$ git clone https://github.com/cwoodall/pitch-shifter-py.git
+$ cd pitch-shifter-py
+$ pip install .
+
 ```
 
 ## Running the tests
