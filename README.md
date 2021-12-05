@@ -8,6 +8,10 @@ This website allows a user to upload any song as a MP3 file, separating the song
 
 There are many applications of this project. For example, users can use the website as their personal "band." They can mute the drums of a track, for instance, and play the drums themselves, allowing them to create a more immersive performance. Similarly, it is possible to isolate just the vocals, allowing music producers to overlay the vocals to new instrumentals. Primarily, we have experimented using the tool in group karaoke settings, in which we have strategically muted the vocals of the song as our own "DJs" in order to immerse ourselves more deeply into the songs. 
 
+## Compatability
+
+The Spleeter tool runs into compatability issues on M1 Macs. However, the functionality should work well on Windows and Intel Macs with the right dependencies.
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.

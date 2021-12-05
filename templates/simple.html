@@ -37,6 +37,7 @@
     <button id='playaudio' onclick='playAudio()'>Play Audio</button>
     <button id='stopaudio' onclick='stopAudio()'>Stop Audio</button>
     <button id='refreshaudio' onclick='refreshAudio()'>Refresh Audio</button>
+    <button id='pitchup' onclick='pitchUp()'>Pitch Up</button>
     
     <!-- upload file -->
     <form action = "http://localhost:5000/uploader" method = "POST"
@@ -57,11 +58,19 @@
             <button class="btn btn-primary" type="submit">Separate</button>
         </div>
     </form>
-    
-    <div class="ocean">
-        <div class="wave"></div>
-        <div class="wave"></div>
-    </div>
+
+    <!-- Pitch Up -->
+    <form action="/shifter" method="POST">
+        <div class="mb-3">
+            <select id = "pitched_song" class="form-select mx-auto w-auto" name="song">
+                <option disabled selected>Song</option>
+                {% for song in songs %}
+                    <option id = song_name value="{{ song }}">{{ song.rsplit('.', 1)[0] }}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-primary" type="submit">Shift Pitch Up</button>
+        </div>
+    </form>
     
     <!-- Testing: what are the outputs below. looks good  -->
     {% for stem in stems %}
