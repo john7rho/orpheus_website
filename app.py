@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, request, redirect, flash
+from flask import Flask, render_template, Response, request, redirect, flash, send_from_directory
 from werkzeug.utils import secure_filename
 import sys
 import os
@@ -26,11 +26,11 @@ app = Flask(__name__)
 app.secret_key = 'secretkey'
 
 # Set folder for uploads
-UPLOAD_FOLDER = 'static\\uploads' # TODO path breaks depending on OS
+UPLOAD_FOLDER = 'static/uploads' # TODO path breaks depending on OS
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Set folder for stems
-STEM_FOLDER = 'static\\stems' # TODO path breaks depending on OS - macOS works with single slash
+STEM_FOLDER = 'static/stems' # TODO path breaks depending on OS - macOS works with single slash
 PITCHED_FOLDER = 'static/pitched'
 
 # Get list of all uploaded songs
@@ -105,10 +105,10 @@ def spleeter():
         new_folder = join(STEM_FOLDER, song_name)
         
         # Make a directory for the song's stems
-        os.system(f"mkdir {new_folder}")
+        os.mkdir(new_folder)
         
         # Spleet the song. TODO: PLEASE CHECK that this works (it should put stems in the stem folder)
-        os.system(f"spleeter separate {song_path} -p spleeter:5stems -o {new_folder}")
+        os.system("spleeter separate {} -p spleeter:5stems -o {}".format(song_path, new_folder))
 
         # Create list of stems. TODO: if spleeter works double check which file it sends the stems to. (it might send them to an 'output' folder under the new_folder)
         stems = [f for f in listdir(new_folder) if isfile(join(new_folder, f))]
@@ -141,7 +141,7 @@ def shifter():
         
         # New directory for song's stems
         new_folder = 'static/pitched/' + song_name
-        new_path = 'static\\pitched\\' + song_name
+        new_path = 'static/pitched/' + song_name
 
         # Paths for current stems and pitched stems
         current_vocals = song_path + '/vocals.wav'
@@ -161,14 +161,14 @@ def shifter():
         #TODO add a blending feature also to blend in background vocals
 
         # Make folder for the new pitched stems
-        os.system(f"mkdir {new_path}")
+        os.mkdir(new_path)
 
         # Spleet the song. TODO: PLEASE CHECK that this works (it should put stems in the stem folder)
-        os.system(f"pitchshifter -s {current_vocals} -o {shift_vocals} -p 1 -b 1")
-        os.system(f"pitchshifter -s {current_bass} -o {shift_bass} -p 1 -b 1")
-        os.system(f"pitchshifter -s {current_other} -o {shift_other} -p 1 -b 1")
-        os.system(f"pitchshifter -s {current_piano} -o {shift_piano} -p 1 -b 1")
-        os.system(f"pitchshifter -s {current_drums} -o {shift_drums} -p 1 -b 1")
+        os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_vocals,shift_vocals))
+        os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_bass,shift_bass))
+        os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_other,shift_other))
+        os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_piano,shift_piano))
+        os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_drums,shift_drums))
 
         # Create list of stems. TODO: if spleeter works double check which file it sends the stems to. (it might send them to an 'output' folder under the new_folder)
         pitched_stems = [f for f in listdir(new_folder) if isfile(join(new_folder, f))]
@@ -178,6 +178,10 @@ def shifter():
 
         return render_template("simple.html", songs=songs, stems=pitched_stems)
 
+@app.route('/favicon.ico') 
+def favicon(): 
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 #launch a Tornado server with HTTPServer.
 if __name__ == "__main__":
     port = 5000
@@ -185,4 +189,3 @@ if __name__ == "__main__":
     logging.debug("Started Server, Kindly visit http://localhost:" + str(port))
     http_server.listen(port)
     IOLoop.instance().start()
-    
