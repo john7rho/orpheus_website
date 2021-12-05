@@ -19,7 +19,7 @@ from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
 #Debug logger
-import logging 
+import logging
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)
 
@@ -220,8 +220,9 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+<<<<<<< Updated upstream
 @app.route('/uploader', methods=['GET', 'POST'])
-
+=======
 # Do not allow more than one period in a file's name
 def allowed_name(filename):
     return len(filename.split('.')) == 2
@@ -368,3 +369,4 @@ if __name__ == "__main__":
     http_server.listen(port)
     IOLoop.instance().start()
     
+
