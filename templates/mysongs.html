@@ -21,6 +21,12 @@
                         <input type="submit" value="Get Stems">
                     </form>
                 </td>
+                <td>
+                    <form action="/shifter" method="POST">
+                        <input type="hidden" name="song" value="{{ song['song'] }}">
+                        <input type="submit" value="Shift Stems">
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

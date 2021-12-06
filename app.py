@@ -157,29 +157,33 @@ def spleeter():
         # Isolate song name
         song_name = song.rsplit('.', 1)[0]
 
-        # Check if stems already exist
-        stems = [stem for stem in STEM_FOLDER + "/" + song_name]
-        if len(stems) != 0:
-            return render_template("player.html", stems=stems) # stems must be full path of stems
+        # If folder exists, stems already exist
+        if song_name in [song for song in listdir(STEM_FOLDER)]:
+
+            # Generate a list of stem paths
+            stems = [STEM_FOLDER + '/' + song_name + '/' + stem for stem in listdir(STEM_FOLDER + "/" + song_name)]
+
+            # Render template with stem audio
+            return render_template("player.html", stems=stems) 
         
         # Make stems
         else: 
             # New directory for song's stems
-            new_folder = join(STEM_FOLDER, song_name)
+            #new_folder = join(STEM_FOLDER, song_name)
             
             # Make a directory for the song's stems
-            os.mkdir(new_folder)
+            #os.mkdir(new_folder)
             
             # Spleet the song. TODO: PLEASE CHECK that this works (it should put stems in the stem folder)
-            os.system("spleeter separate {} -p spleeter:5stems -o {}".format(song_path, new_folder))
+            os.system("spleeter separate {} -p spleeter:5stems -o {}".format(song_path, STEM_FOLDER))
 
-            # Create list of stems. TODO: if spleeter works double check which file it sends the stems to. (it might send them to an 'output' folder under the new_folder)
-            stems = [f for f in listdir(new_folder) if isfile(join(new_folder, f))]
+            # Create list of stems
+            stems = [STEM_FOLDER + '/' + song_name + '/' + stem for stem in listdir(STEM_FOLDER + "/" + song_name)]
 
             # add the songs
-            songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
+            #songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
 
-            return render_template("simple.html", songs=songs, stems=stems)
+            return render_template("player.html", stems=stems)
 
 # Pitch shifter
 @app.route('/shifter', methods=['GET', 'POST'])
@@ -197,12 +201,20 @@ def shifter():
         # Isolate song name
         song_name = song.rsplit('.', 1)[0] # TODO write better code
 
-        # Correct path to include working directory
-        song_path = 'static/stems/' + song_name + '/' + song_name
+        # Create song path
+        song_path = join(STEM_FOLDER, song_name)
+
+        # If folder exists, stems already exist
+        if song_name in [song for song in listdir(PITCHED_FOLDER)]:
+
+            # Generate a list of stem paths
+            stems = [PITCHED_FOLDER + '/' + song_name + '/' + stem for stem in listdir(PITCHED_FOLDER + "/" + song_name)]
+
+            # Render template with stem audio
+            return render_template("player.html", stems=stems) 
         
         # New directory for song's stems
-        new_folder = 'static/pitched/' + song_name
-        new_path = 'static/pitched/' + song_name
+        pitched_folder = 'static/pitched/' + song_name
 
         # Paths for current stems and pitched stems
         current_vocals = song_path + '/vocals.wav'
@@ -211,18 +223,18 @@ def shifter():
         current_piano = song_path + '/piano.wav'
         current_drums = song_path + '/drums.wav'
         
-        shift_vocals = new_folder + '/vocals.wav'
-        shift_bass = new_folder + '/bass.wav'
-        shift_other = new_folder + '/other.wav'
-        shift_piano = new_folder + '/piano.wav'
-        shift_drums = new_folder + '/drums.wav'
+        shift_vocals = pitched_folder + '/vocals.wav'
+        shift_bass = pitched_folder + '/bass.wav'
+        shift_other = pitched_folder + '/other.wav'
+        shift_piano = pitched_folder + '/piano.wav'
+        shift_drums = pitched_folder + '/drums.wav'
 
         #TODO only let the pitch work if song is already spleeted
         
         #TODO add a blending feature also to blend in background vocals
 
         # Make folder for the new pitched stems
-        os.mkdir(new_path)
+        os.mkdir(pitched_folder)
 
         # Spleet the song. TODO: PLEASE CHECK that this works (it should put stems in the stem folder)
         os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_vocals,shift_vocals))
@@ -232,12 +244,9 @@ def shifter():
         os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_drums,shift_drums))
 
         # Create list of stems. TODO: if spleeter works double check which file it sends the stems to. (it might send them to an 'output' folder under the new_folder)
-        pitched_stems = [f for f in listdir(new_folder) if isfile(join(new_folder, f))]
-        
-        # testing
-        test = [song_path]
+        pitched_stems = [PITCHED_FOLDER + '/' + song_name + '/' + stem for stem in listdir(PITCHED_FOLDER + "/" + song_name)]
 
-        return render_template("simple.html", songs=songs, stems=pitched_stems)
+        return render_template("player.html", stems=pitched_stems)
 
 @app.route('/favicon.ico') 
 def favicon(): 
