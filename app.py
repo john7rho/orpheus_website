@@ -1,5 +1,9 @@
-from flask import Flask, render_template, Response, request, redirect, flash, send_from_directory
+from flask import Flask, render_template, Response, request, redirect, flash, send_from_directory, session
+from flask_session import Session
 from werkzeug.utils import secure_filename
+from werkzeug.security import check_password_hash, generate_password_hash
+from functools import wraps
+from cs50 import SQL
 import sys
 import os
 from os import listdir
@@ -25,6 +29,25 @@ root.addHandler(ch)
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 
+# Configure session to use filesystem (instead of signed cookies)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
+# Ensure templates are auto-reloaded
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+@app.after_request
+def after_request(response):
+    """Ensure responses aren't cached"""
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Expires"] = 0
+    response.headers["Pragma"] = "no-cache"
+    return response
+
+# Configure CS50 Library to use SQLite database
+db = SQL("sqlite:///orpheus.db")
+
 # Set folder for uploads
 UPLOAD_FOLDER = 'static/uploads' # TODO path breaks depending on OS
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -33,20 +56,48 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 STEM_FOLDER = 'static/stems' # TODO path breaks depending on OS - macOS works with single slash
 PITCHED_FOLDER = 'static/pitched'
 
-# Get list of all uploaded songs
-songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
-
-#Route to render GUI
-@app.route('/')
-def show_entries():
-    general_Data = {
-        'title': 'Music Player'}
-    return render_template('simple.html', songs=songs)
-    
-
-# Upload mp3 file. in the future, save this to sql database
+# Configure upload information
 app.config['MAX_CONTENT_PATH'] = 1000000000 # bytes (arbitrary for now)
 ALLOWED_EXTENSIONS = {'mp3','mp4'} # add to this
+
+# Get list of all uploaded songs
+#songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
+
+# TODO: if time, put in helpers.py for design
+def login_required(f):
+    """
+    Decorate routes to require login.
+
+    https://flask.palletsprojects.com/en/1.1.x/patterns/viewdecorators/
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get("user_id") is None:
+            return redirect("/login")
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Orpheus home page
+@app.route('/')
+def show_entries():
+    return render_template('index.html')
+
+# Display the songs that the user has uploaded
+@app.route('/mysongs')
+@login_required
+def show_songs():
+
+    # when we do dbexecute, check to make sure len != 0. if ln = 0 flash you have not ...
+    # get all songs using db.execute
+    # order them alphabetically
+    pathless_songs = db.execute("SELECT song FROM songs WHERE user_id=?", session["user_id"])
+
+    if len(pathless_songs) == 0:
+        flash("You have not uploaded any songs yet")
+        return redirect('/upload')
+
+    return render_template("mysongs.html", songs=pathless_songs)
+
 
 # Allow file if it is a file type in the allowed extensions
 def allowed_file(filename):
@@ -58,7 +109,8 @@ def allowed_name(filename):
     return len(filename.split('.')) == 2
 
 # TODO reject song if already uploaded
-@app.route('/uploader', methods=['GET', 'POST'])
+@app.route('/upload', methods=['GET', 'POST'])
+@login_required
 def upload_file():
     if request.method == 'POST':
         # check if the post request has the file part
@@ -77,21 +129,25 @@ def upload_file():
         if file and allowed_file(file.filename) and allowed_name(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            # Insert song into database
+            db.execute("INSERT INTO songs (song, user_id) VALUES(?,?)", filename, session["user_id"])
+
             # Update list of songs
-            songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))] # need to append
-            return render_template("simple.html", songs=songs)
-    return "success!"
+            songs = db.execute("SELECT song FROM songs WHERE user_id=?", session["user_id"])
+
+            return render_template("mysongs.html", songs=songs)
+
+    return render_template("upload.html")
 
 
 # Spleeter
 @app.route('/spleeter', methods=['GET', 'POST'])
+@login_required
 def spleeter():
     if request.method == 'POST':
         
         # TODO: Alert the user that this may take a minute
-        
-        # TODO: stop the user from spleeting if a stem directory already exists. or at least do something that stops this from trying to make 2 folders with the same name.
-        
+                
         # Get song file path
         song = request.form.get('song')
         
@@ -99,30 +155,35 @@ def spleeter():
         song_path = join(UPLOAD_FOLDER, song)
         
         # Isolate song name
-        song_name = song.rsplit('.', 1)[0] # TODO write better code
-        
-        # New directory for song's stems
-        new_folder = join(STEM_FOLDER, song_name)
-        
-        # Make a directory for the song's stems
-        os.mkdir(new_folder)
-        
-        # Spleet the song. TODO: PLEASE CHECK that this works (it should put stems in the stem folder)
-        os.system("spleeter separate {} -p spleeter:5stems -o {}".format(song_path, new_folder))
+        song_name = song.rsplit('.', 1)[0]
 
-        # Create list of stems. TODO: if spleeter works double check which file it sends the stems to. (it might send them to an 'output' folder under the new_folder)
-        stems = [f for f in listdir(new_folder) if isfile(join(new_folder, f))]
+        # Check if stems already exist
+        stems = [stem for stem in STEM_FOLDER + "/" + song_name]
+        if len(stems) != 0:
+            return render_template("player.html", stems=stems) # stems must be full path of stems
         
-        # testing
-        test = [song_path]
+        # Make stems
+        else: 
+            # New directory for song's stems
+            new_folder = join(STEM_FOLDER, song_name)
+            
+            # Make a directory for the song's stems
+            os.mkdir(new_folder)
+            
+            # Spleet the song. TODO: PLEASE CHECK that this works (it should put stems in the stem folder)
+            os.system("spleeter separate {} -p spleeter:5stems -o {}".format(song_path, new_folder))
 
-        # add the songs
-        songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
+            # Create list of stems. TODO: if spleeter works double check which file it sends the stems to. (it might send them to an 'output' folder under the new_folder)
+            stems = [f for f in listdir(new_folder) if isfile(join(new_folder, f))]
 
-        return render_template("simple.html", songs=songs, stems=stems)
+            # add the songs
+            songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
+
+            return render_template("simple.html", songs=songs, stems=stems)
 
 # Pitch shifter
 @app.route('/shifter', methods=['GET', 'POST'])
+@login_required
 def shifter():
     if request.method == 'POST':
         
@@ -181,6 +242,100 @@ def shifter():
 @app.route('/favicon.ico') 
 def favicon(): 
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Log user in"""
+
+    # Forget any user_id
+    session.clear()
+
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+
+        # Ensure username was submitted
+        if not request.form.get("username"):
+            flash("must provide username")
+            return redirect("/login")
+
+        # Ensure password was submitted
+        if not request.form.get("password"):
+            flash("must provide password")
+            return redirect("/login")
+
+        # Query database for username
+        rows = db.execute("SELECT * FROM users WHERE username = ?",
+                          request.form.get("username"))
+
+        # Ensure username exists and password is correct
+        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+            flash("invalid username and/or password")
+            return redirect("/login")
+
+        # Remember which user has logged in
+        session["user_id"] = rows[0]["id"]
+
+        # Redirect user to home page
+        return redirect("/")
+
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+        return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    """Log user out"""
+
+    # Forget any user_id
+    session.clear()
+
+    # Redirect user to login form
+    return redirect("/")
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """Register user"""
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+
+        # Ensure username was submitted
+        if not request.form.get("username"):
+            flash("must provide username")
+            return redirect("/register")
+
+        # Ensure username is not duplicate
+        if db.execute("SELECT * FROM users WHERE username=?", request.form.get("username")):
+            flash("username is already taken")
+            return redirect("/register")
+
+        # Ensure password was submitted
+        if not request.form.get("password"):
+            flash("must provide password")
+            return redirect("/register")
+        # Ensure password was submitted
+        if request.form.get("password").isalpha():
+            flash("password cannot contain only letters")
+            return redirect("/register")
+
+        # Passwords do not match
+        if request.form.get("password") != request.form.get("confirmation"):
+            flash("passwords do not match")
+            return redirect("/register")
+
+        # Insert into database
+        db.execute("INSERT INTO users (username, hash) VALUES (?, ?)", request.form.get(
+            "username"), generate_password_hash(request.form.get("password")))
+
+        rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+        session["user_id"] = rows[0]["id"]
+
+        # Redirect user to home page
+        return redirect("/")
+
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+        return render_template("register.html")
 
 #launch a Tornado server with HTTPServer.
 if __name__ == "__main__":
