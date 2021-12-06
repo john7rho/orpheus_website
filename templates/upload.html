@@ -6,8 +6,11 @@
 
 {% block main %}
     <h1 class="center">
-        Upload MP3 File
+        Upload Music File
     </h1>
+    <h3>
+        Accepted file formats: mp3, m4a, wav, ogg, wma, flac
+    </h3>
     <br>
     <form action="/upload" method="POST" enctype = "multipart/form-data">
         <input type="file" name="file" class="hidden"/>

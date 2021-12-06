@@ -1,11 +1,11 @@
+import sys
+import os
 from flask import Flask, render_template, Response, request, redirect, flash, send_from_directory, session
 from flask_session import Session
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 from cs50 import SQL
-import sys
-import os
 from os import listdir
 from os.path import isfile, join
 # Tornado web server
@@ -20,8 +20,7 @@ root.setLevel(logging.DEBUG)
 
 ch = logging.StreamHandler(sys.stdout)
 ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
 root.addHandler(ch)
 
@@ -58,7 +57,7 @@ PITCHED_FOLDER = 'static/pitched'
 
 # Configure upload information
 app.config['MAX_CONTENT_PATH'] = 1000000000 # bytes (arbitrary for now)
-ALLOWED_EXTENSIONS = {'mp3','mp4'} # add to this
+ALLOWED_EXTENSIONS = {'mp3', 'm4a', 'wav', 'ogg', 'wma', 'flac'}
 
 # Get list of all uploaded songs
 #songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
@@ -81,6 +80,13 @@ def login_required(f):
 @app.route('/')
 def show_entries():
     return render_template('index.html')
+
+# Start page for users after home page
+@app.route('/getstarted')
+# have users login if they are not already logged in
+@login_required
+def get_started():
+    return redirect('/mysongs')
 
 # Display the songs that the user has uploaded
 @app.route('/mysongs')
@@ -116,26 +122,35 @@ def upload_file():
         # check if the post request has the file part
         if 'file' not in request.files:
             flash('No file part.')
-            return redirect('/') #unsure what the url would be? test
+            return redirect('/upload')
         file = request.files['file']
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
+
+        if not file:
+            flash('Invalid file.')
+            return redirect('/upload')
+        
+        # If the user does not select a file, the browser submits an empty file without a filename.
         if file.filename == '':
             flash('No selected file.')
-            return redirect('/')
-        if (allowed_name(file.filename) == False):
+            return redirect('/upload')
+
+        if not allowed_name(file.filename):
             flash('File name must not contain a period.')
-            return redirect('/')
-        if file and allowed_file(file.filename) and allowed_name(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            # Insert song into database
-            db.execute("INSERT INTO songs (song, user_id) VALUES(?,?)", filename, session["user_id"])
+            return redirect('/upload')
 
-            # Update list of songs
-            songs = db.execute("SELECT song FROM songs WHERE user_id=?", session["user_id"])
+        if not allowed_file(file.filename):
+            flash('File must be of extension type mp3 or mp4.')
+            return redirect('/upload')
 
-            return render_template("mysongs.html", songs=songs)
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        # Insert song into database
+        db.execute("INSERT INTO songs (song, user_id) VALUES(?,?)", filename, session["user_id"])
+
+        # Update list of songs
+        songs = db.execute("SELECT song FROM songs WHERE user_id=?", session["user_id"])
+
+        return render_template("mysongs.html", songs=songs)
 
     return render_template("upload.html")
 
@@ -146,7 +161,8 @@ def upload_file():
 def spleeter():
     if request.method == 'POST':
         
-        # TODO: Alert the user that this may take a minute
+        # Alert the user that this may take a minute
+        flash('Getting stems. This process may take a moment.')
                 
         # Get song file path
         song = request.form.get('song')
@@ -272,8 +288,8 @@ def login():
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
 
-        # Redirect user to home page
-        return redirect("/")
+        # Redirect user to their songs
+        return redirect("/mysongs")
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
