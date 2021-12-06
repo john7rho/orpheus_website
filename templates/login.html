@@ -5,6 +5,13 @@
 {% endblock %}
 
 {% block main %}
+    <h1 class="center">
+        Login
+    </h1>
+    <h6 class="center">
+        Incorrect logins will send users back to the login page.
+    </h6>
+    <br>
     <form action="/login" method="post">
         <div class="mb-3">
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text">
@@ -13,5 +20,9 @@
             <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">
         </div>
         <button class="btn btn-primary" type="submit">Log In</button>
+    </form>
+    <br>
+    <form action="/register">
+        <button class="btn btn-primary" type="submit">Need an account?</button>
     </form>
 {% endblock %}

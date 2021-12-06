@@ -93,7 +93,7 @@ def show_songs():
     pathless_songs = db.execute("SELECT song FROM songs WHERE user_id=?", session["user_id"])
 
     if len(pathless_songs) == 0:
-        flash("You have not uploaded any songs yet")
+        flash("You have not uploaded any songs yet.")
         return redirect('/upload')
 
     return render_template("mysongs.html", songs=pathless_songs)
@@ -115,16 +115,16 @@ def upload_file():
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
-            flash('No file part')
+            flash('No file part.')
             return redirect('/') #unsure what the url would be? test
         file = request.files['file']
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
         if file.filename == '':
-            flash('No selected file')
+            flash('No selected file.')
             return redirect('/')
         if (allowed_name(file.filename) == False):
-            flash('File name must not have period outside of file type extension')
+            flash('File name must not contain a period.')
             return redirect('/')
         if file and allowed_file(file.filename) and allowed_name(file.filename):
             filename = secure_filename(file.filename)
@@ -255,21 +255,10 @@ def favicon():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Log user in"""
-
-    # Forget any user_id
-    session.clear()
-
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-
         # Ensure username was submitted
-        if not request.form.get("username"):
-            flash("must provide username")
-            return redirect("/login")
-
-        # Ensure password was submitted
-        if not request.form.get("password"):
-            flash("must provide password")
+        if not request.form.get("username") or not request.form.get("password"):
             return redirect("/login")
 
         # Query database for username
@@ -278,7 +267,6 @@ def login():
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-            flash("invalid username and/or password")
             return redirect("/login")
 
         # Remember which user has logged in
@@ -289,6 +277,9 @@ def login():
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
+        # Forget any user_id
+        session.clear()
+
         return render_template("login.html")
 
 
@@ -310,26 +301,26 @@ def register():
 
         # Ensure username was submitted
         if not request.form.get("username"):
-            flash("must provide username")
+            flash("Must provide username.")
             return redirect("/register")
 
         # Ensure username is not duplicate
         if db.execute("SELECT * FROM users WHERE username=?", request.form.get("username")):
-            flash("username is already taken")
+            flash("Username is already taken.")
             return redirect("/register")
 
         # Ensure password was submitted
         if not request.form.get("password"):
-            flash("must provide password")
+            flash("Must provide password.")
             return redirect("/register")
         # Ensure password was submitted
         if request.form.get("password").isalpha():
-            flash("password cannot contain only letters")
+            flash("Password cannot contain only letters.")
             return redirect("/register")
 
         # Passwords do not match
         if request.form.get("password") != request.form.get("confirmation"):
-            flash("passwords do not match")
+            flash("Passwords do not match.")
             return redirect("/register")
 
         # Insert into database

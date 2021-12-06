@@ -5,19 +5,28 @@
 {% endblock %}
 
 {% block main %}
-    <h1 class="center">
-        Experience Music, Your Way
-    </h1>
-    <br>
-    <h3>
-        Orpheus is your new favorite stem player.
-    </h3>
-    <h5>
-        Upload mp3 files to Orpheus and get the vocals, bass, percussion, piano, and more extracted. 
-    </h5>
-    <br>
-    Play the stems back and adjust them live!
-    <div class="ripple1"></div>
-    <div class="ripple2"></div>
-    <div class="ripple3"></div>
+    <div>
+        <h1 class="center">
+            Experience Music, Your Way
+        </h1>
+        <br>
+        <h3>
+            Orpheus is your new favorite stem player.
+        </h3>
+        <br>
+        <h5>
+            Upload mp3 files to Orpheus and get the vocals, bass, percussion, piano, and more extracted. 
+            <br>
+            Play the stems back and adjust them live!
+        </h5>
+        <br>
+        <form action="/login">
+            <button class="btn btn-primary" type="submit">Get Started</button>
+        </form>
+    </div>
+    <div>
+        <a class="ripple1" href="/login"></a>
+        <a div class="ripple2" href="/login"></a>
+        <div class="ripple3" href="/login"></div>
+    </div>
 {% endblock %}
