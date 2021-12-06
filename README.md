@@ -2,6 +2,8 @@
 
 ## Description
 
+THIS README IS OUTDATED - TAKE FROM JOHNS COMPUTER
+
 This website allows a user to upload any song as a MP3 file, separating the song into 5 separate "stems" that represent the vocals, bass, drums, piano, and other instruments of the original file. We have incorporated a tool called Spleeter by Deezer that is able to split a song into its components. For legal reasons (e.g., copyright laws), users can only upload songs that they rightfully own and are allowed to modify. Once the song is separated, users can then play the song and mute certain stems to modify their listening experience. For example, it is possible to mute the vocals during particular moments of the song to create a "karaoke" effect for a large audience of listeners.
 
 ## Use cases
