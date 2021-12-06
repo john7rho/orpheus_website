@@ -6,15 +6,27 @@
 
 {% block main %}
     <!-- Stems -->
-    {% for stem in stems %}
-        <b>{{ stem.split("/")[-1].split(".")[0] }}</b>
-        <!-- id is name of stem (there are only a few possible stem names -->
-        <audio id='{{ stem.split("/")[-1].split(".")[0] }}' preload="auto" autobuffer controls>
-            <source src="{{ stem }}" type="audio/{{ stem.split('/')[-1].split('.')[1] }}">
-        </audio>
-    {% endfor %}
+    <h1 class="center">
+        Stem Player
+    </h1>
+    <table class="center">
+        {% for stem in stems %}
+            <tr>
+                <td>
+                    <b>{{ stem.split("/")[-1].split(".")[0].upper() }}</b>
+                </td>
+                <td>
+                    <!-- id is name of stem (there are only a few possible stem names -->
+                    <audio id='{{ stem.split("/")[-1].split(".")[0] }}' preload="auto" autobuffer controls>
+                        <source src="{{ stem }}" type="audio/{{ stem.split('/')[-1].split('.')[1] }}">
+                    </audio>
+                </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+
     <button id='playaudio' onclick='playAudio()'>Play Audio</button>
     <button id='stopaudio' onclick='stopAudio()'>Stop Audio</button>
     <button id='refreshaudio' onclick='refreshAudio()'>Refresh Audio</button>
-    <button id='pitchup' onclick='pitchUp()'>Shift On</button>
 {% endblock %}

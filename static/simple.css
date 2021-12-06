@@ -4,18 +4,20 @@ body {
     font-family: Arial, Helvetica, sans-serif;
   letter-spacing: -0.5px;
 }
-button {
-    padding: 0;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-    outline: none;
-    width: 40px;
-    height: 40px;
-    float: left;
+.center {
+    margin-left: auto;
+    margin-right: auto;
 }
+.footer {
+    height:24px;
+    position: fixed;
+    bottom: 0pt;
+    right: 0pt;
+    float: right;
+}  
+
 #audio-player-container {
-      --seek-before-width: 0%;
+    --seek-before-width: 0%;
     --volume-before-width: 100%;
     --buffered-width: 0%;
     position: relative;
@@ -181,4 +183,3 @@ input[type="range"]:active::-ms-thumb {
     transform: scale(1.2);
     background: #007db5;
 }
-
