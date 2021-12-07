@@ -1,4 +1,4 @@
-# Using Flask/Python backend and HTML/JavaScript/CSS frontend to create music splitting and stem playing webapp
+# Using Flask/Python backend and HTML/JavaScript/CSS frontend to create Orpheus, a music splitting and stem playing webapp
 
 ## Description
 
