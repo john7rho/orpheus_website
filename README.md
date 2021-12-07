@@ -2,8 +2,6 @@
 
 ## Description
 
-THIS README IS OUTDATED - TAKE FROM JOHNS COMPUTER
-
 This website allows a user to upload any song as a MP3 file, separating the song into 5 separate "stems" that represent the vocals, bass, drums, piano, and other instruments of the original file. We have incorporated a tool called Spleeter by Deezer that is able to split a song into its components. For legal reasons (e.g., copyright laws), users can only upload songs that they rightfully own and are allowed to modify. Once the song is separated, users can then play the song and mute certain stems to modify their listening experience. For example, it is possible to mute the vocals during particular moments of the song to create a "karaoke" effect for a large audience of listeners.
 
 ## Use cases
@@ -12,7 +10,7 @@ There are many applications of this project. For example, users can use the webs
 
 ## Compatability
 
-The Spleeter tool runs into compatability issues on M1 Macs. However, the functionality should work well on Windows and Intel Macs with the right dependencies.
+The Spleeter tool runs into compatibility issues on M1 Macs. However, the functionality should work well on Windows and Intel Macs with the right dependencies.
 
 ## Getting Started
 
@@ -20,12 +18,10 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+What things you need to install the software and how to install them.
 
 ```
 Python 3
-Flask
-Tornado Web Server
 ```
 
 ### Installing basic requirements
@@ -36,14 +32,15 @@ pip install -r requirements.txt
 ```
 Once all packages are downloaded and installed run.
 
-### Installng the Pitch Shifter
+### Installing the Pitch Shifter
 
-This portion allows us to pitch up songs without changing the speed. Note: Python 3.7+ is required. To install, make sure to follow the steps below:
+The pitch shifter allows us to pitch up songs without changing the speed. Note: Python 3.7+ is required. To install, make sure to follow the steps below:
 
 ```
 $ git clone https://github.com/cwoodall/pitch-shifter-py.git
 $ cd pitch-shifter-py
 $ pip install .
+$ cd ..
 ```
 
 ## Running the tests

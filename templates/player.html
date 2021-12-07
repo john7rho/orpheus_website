@@ -1,41 +1,41 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Orpheus
+Orpheus
 {% endblock %}
 
 {% block main %}
-    <!-- Stems -->
-    <h1 class="center">
-        Stem Player
-    </h1>
-    <table class="center">
-        {% for stem in stems %}
-            <tr>
-                <td>
-                    <b>{{ stem.split("/")[-1].split(".")[0].upper() }}</b>
-                </td>
-                <td>
-                    <!-- id is name of stem (there are only a few possible stem names -->
-                    <audio id='{{ stem.split("/")[-1].split(".")[0] }}' preload="auto" autobuffer controls>
-                        <source src="{{ stem }}" type="audio/{{ stem.split('/')[-1].split('.')[1] }}">
-                    </audio>
-                </td>
-        </tr>
-        {% endfor %}
-    </table>
-    <br>
+<!-- Stems -->
+<h1 class="center">
+    Stem Player
+</h1>
+<table class="center">
+    {% for stem in stems %}
+    <tr>
+        <td>
+            <b>{{ stem.split("/")[-1].split(".")[0].upper() }}</b>
+        </td>
+        <td>
+            <!-- id is name of stem (there are only a few possible stem names -->
+            <audio id='{{ stem.split("/")[-1].split(".")[0] }}' preload="auto" autobuffer controls>
+                <source src="{{ stem }}" type="audio/{{ stem.split('/')[-1].split('.')[1] }}">
+            </audio>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
 
-    <button id='playaudio' onclick='playAudio()'>Play Audio</button>
-    <button id='stopaudio' onclick='stopAudio()'>Stop Audio</button>
-    <button id='refreshaudio' onclick='refreshAudio()'>Refresh Audio</button>
-    <br>
-    <h6></h6>
-    <h6></h6>
-    <hr>
-    <h6 class='center'>
-        Instructions: Use the buttons at the bottom (Play/Pause) to start/stop the audio. 
-        Use the Refresh Audio to start the audio over. 
-        To mute a stem, use the volume controls!
-    </h6>
+<button id='playaudio' onclick='playAudio()'>Play Audio</button>
+<button id='stopaudio' onclick='stopAudio()'>Stop Audio</button>
+<button id='refreshaudio' onclick='refreshAudio()'>Refresh Audio</button>
+<br>
+<h6></h6>
+<h6></h6>
+<hr>
+<h6 class='center'>
+    Instructions: Use the buttons at the bottom (Play/Pause) to start/stop the audio.
+    Use the Refresh Audio to start the audio over.
+    To mute a stem, use the volume controls!
+</h6>
 {% endblock %}
