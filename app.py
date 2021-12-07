@@ -163,8 +163,8 @@ def upload_file():
         filename = secure_filename(file.filename)
 
         # Song has already been uploaded
-        if not db.execute(
-            "SELECT FROM songs WHERE song=? AND user_id=?", filename, session["user_id"]
+        if db.execute(
+            "SELECT * FROM songs WHERE song=? AND user_id=?", filename, session["user_id"]
         ):
             flash("This song already exists in your Orpheus library.")
             return redirect("/mysongs")
