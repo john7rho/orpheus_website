@@ -48,11 +48,11 @@ def after_request(response):
 db = SQL("sqlite:///orpheus.db")
 
 # Set folder for uploads
-UPLOAD_FOLDER = 'static/uploads' # TODO path breaks depending on OS
+UPLOAD_FOLDER = 'static/uploads' 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Set folder for stems
-STEM_FOLDER = 'static/stems' # TODO path breaks depending on OS - macOS works with single slash
+STEM_FOLDER = 'static/stems' 
 PITCHED_FOLDER = 'static/pitched'
 
 # Configure upload information
@@ -62,7 +62,6 @@ ALLOWED_EXTENSIONS = {'mp3', 'm4a', 'wav', 'ogg', 'wma', 'flac'}
 # Get list of all uploaded songs
 #songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
 
-# TODO: if time, put in helpers.py for design
 def login_required(f):
     """
     Decorate routes to require login.
@@ -190,7 +189,7 @@ def spleeter():
             # Make a directory for the song's stems
             #os.mkdir(new_folder)
             
-            # Spleet the song. TODO: PLEASE CHECK that this works (it should put stems in the stem folder)
+            # Spleet the song. 
             os.system("spleeter separate {} -p spleeter:5stems -o {}".format(song_path, STEM_FOLDER))
 
             # Create list of stems
@@ -207,18 +206,21 @@ def spleeter():
 def shifter():
     if request.method == 'POST':
         
-        # TODO: Alert the user that this may take a minute
-        
-        # TODO: stop the user from spleeting if a stem directory already exists. or at least do something that stops this from trying to make 2 folders with the same name.
-        
         # Get song file path
         song = request.form.get('song')
         
         # Isolate song name
-        song_name = song.rsplit('.', 1)[0] # TODO write better code
+        song_name = song.rsplit('.', 1)[0] 
 
         # Create song path
         song_path = join(STEM_FOLDER, song_name)
+
+        # Check if the stems don't exist
+        if song_name not in [song for song in listdir(STEM_FOLDER)]:
+
+            # Return error that the songs' stems do not exist
+            return render_template('mysongs.html', message='Make sure to hit the Get Stems button first!')
+            
 
         # If folder exists, stems already exist
         if song_name in [song for song in listdir(PITCHED_FOLDER)]:
@@ -244,10 +246,6 @@ def shifter():
         shift_other = pitched_folder + '/other.wav'
         shift_piano = pitched_folder + '/piano.wav'
         shift_drums = pitched_folder + '/drums.wav'
-
-        #TODO only let the pitch work if song is already spleeted
-        
-        #TODO add a blending feature also to blend in background vocals
 
         # Make folder for the new pitched stems
         os.mkdir(pitched_folder)
