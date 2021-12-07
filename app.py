@@ -111,11 +111,9 @@ def get_started():
 @login_required
 def show_songs():
 
-    # when we do dbexecute, check to make sure len != 0. if ln = 0 flash you have not ...
-    # get all songs using db.execute
-    # order them alphabetically
+    # get all songs using db.execute, ordered alphabetically
     pathless_songs = db.execute(
-        "SELECT song FROM songs WHERE user_id=?", session["user_id"]
+        "SELECT song FROM songs WHERE user_id=? ORDER BY song", session["user_id"]
     )
 
     if len(pathless_songs) == 0:
@@ -137,7 +135,7 @@ def allowed_name(filename):
     return len(filename.split(".")) == 2
 
 
-# TODO reject song if already uploaded
+# Allow users to upload their own songs.
 @app.route("/upload", methods=["GET", "POST"])
 @login_required
 def upload_file():
@@ -166,6 +164,12 @@ def upload_file():
             return redirect("/upload")
 
         filename = secure_filename(file.filename)
+
+        # Song has already been uploaded
+        if filename in [song for song in listdir(UPLOAD_FOLDER)]:
+            flash("This song already exists in your Orpheus library.")
+            return redirect("/mysongs")
+
         file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
         # Insert song into database
         db.execute(
@@ -187,7 +191,6 @@ def upload_file():
 @login_required
 def spleeter():
     if request.method == "POST":
-        flash("Stems Retrieved.")
 
         # Get song file path
         song = request.form.get("song")
@@ -207,6 +210,7 @@ def spleeter():
                 for stem in listdir(STEM_FOLDER + "/" + song_name)
             ]
 
+            flash("Stems Retrieved.")
             # Render template with stem audio
             return render_template("player.html", stems=stems)
 
@@ -234,7 +238,11 @@ def spleeter():
             # add the songs
             # songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
 
+            flash("Stems Retrieved.")
             return render_template("player.html", stems=stems)
+
+    else:
+        return redirect("/mysongs")
 
 
 # Pitch shifter
@@ -291,7 +299,7 @@ def shifter():
         # Make folder for the new pitched stems
         os.mkdir(pitched_folder)
 
-        # Spleet the song. TODO: PLEASE CHECK that this works (it should put stems in the stem folder)
+        # Spleet the song.
         os.system(
             "pitchshifter -s {} -o {} -p 1 -b 1".format(current_vocals, shift_vocals)
         )
@@ -306,13 +314,52 @@ def shifter():
             "pitchshifter -s {} -o {} -p 1 -b 1".format(current_drums, shift_drums)
         )
 
-        # Create list of stems. TODO: if spleeter works double check which file it sends the stems to. (it might send them to an 'output' folder under the new_folder)
+        # Create list of stems.
         pitched_stems = [
             PITCHED_FOLDER + "/" + song_name + "/" + stem
             for stem in listdir(PITCHED_FOLDER + "/" + song_name)
         ]
 
         return render_template("player.html", stems=pitched_stems)
+
+    else:
+        return redirect("/mysongs")
+
+
+@app.route("/deleter", methods=["GET", "POST"])
+@login_required
+def deleter():
+    if request.method == "POST":
+        flash("Song deleted.")
+
+        # Get song file path
+        song = request.form.get("song")
+
+        # Correct path to include working directory
+        song_path = join(UPLOAD_FOLDER, song)
+
+        # Isolate song name
+        song_name = song.rsplit(".", 1)[0]
+
+        # Remove song from database
+        db.execute("DELETE FROM songs WHERE song=?", song)
+
+        # Remove uploaded song file
+        if song in [song for song in listdir(UPLOAD_FOLDER)]:
+            os.system("rm -f {}".format(UPLOAD_FOLDER + "/" + song))
+
+        # Remove stems
+        if song_name in [song for song in listdir(STEM_FOLDER)]:
+            os.system("rm -rf {}".format(STEM_FOLDER + "/" + song_name))
+
+        # Remove pitched stems
+        if song_name in [song for song in listdir(PITCHED_FOLDER)]:
+            os.system("rm -rf {}".format(PITCHED_FOLDER + "/" + song_name))
+
+        return redirect("/mysongs")
+
+    else:
+        return redirect("/mysongs")
 
 
 @app.route("/favicon.ico")
@@ -337,7 +384,7 @@ def login():
 
         # Query database for username
         rows = db.execute(
-            "SELECT * FROM users WHERE username = ?", request.form.get("username")
+            "SELECT * FROM users WHERE username=?", request.form.get("username")
         )
 
         # Ensure username exists and password is correct
@@ -395,12 +442,6 @@ def register():
         if not request.form.get("password"):
             flash("Must provide password.")
             return redirect("/register")
-        # Ensure password was submitted
-        if request.form.get("password").isalpha():
-            flash("Password cannot contain only letters.")
-            return render_template(
-                "register.html", message="Password cannot contain only letters."
-            )
 
         # Passwords do not match
         if request.form.get("password") != request.form.get("confirmation"):
@@ -415,7 +456,7 @@ def register():
         )
 
         rows = db.execute(
-            "SELECT * FROM users WHERE username = ?", request.form.get("username")
+            "SELECT * FROM users WHERE username=?", request.form.get("username")
         )
         session["user_id"] = rows[0]["id"]
 

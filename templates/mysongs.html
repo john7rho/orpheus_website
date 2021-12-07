@@ -6,7 +6,7 @@ Upload
 
 {% block main %}
 <h1 class="center">
-    My Songs
+    My Orpheus Library
 </h1>
 <h6>{{ message }}</h6>
 <h6> It might take up to a minute to process stems the first time "Get Stems" or "Shift Stems" is clicked for each song.
@@ -17,6 +17,7 @@ Upload
             <th scope="col">Song Name</th>
             <th scope="col">Get Stems</th>
             <th scope="col">Shift Stems Up a Semitone</th>
+            <th scope="col">Delete Song</th>
         </tr>
     </thead>
     <tbody>
@@ -33,6 +34,12 @@ Upload
                 <form action="/shifter" method="POST">
                     <input type="hidden" name="song" value="{{ song['song'] }}">
                     <input type="submit" value="Shift Stems">
+                </form>
+            </td>
+            <td>
+                <form action="/deleter" method="POST">
+                    <input type="hidden" name="song" value="{{ song['song'] }}">
+                    <input type="submit" value="Delete Song">
                 </form>
             </td>
         </tr>
