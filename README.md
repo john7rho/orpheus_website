@@ -1,4 +1,4 @@
-# Using Flask/Python backend and HTML/JavaScript/CSS frontend to create music splitter and stem player
+# Using Flask/Python backend and HTML/JavaScript/CSS frontend to create music splitting and stem playing webapp
 
 ## Description
 
@@ -43,7 +43,7 @@ $ pip install .
 $ cd ..
 ```
 
-## Running the tests
+## Running Orpheus
 ```
 To run the app, run `FLASK_APP=app.py` initially to set up the flask app. Then all future executions can be done with "flask run" command. For some systems (mainly Windows systems), it may be necessary to run "python app.py" instead.
 ```
