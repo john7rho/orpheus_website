@@ -132,7 +132,7 @@ def allowed_name(filename):
     return len(filename.split(".")) == 2
 
 
-# Allow users to upload their own songs.
+# Allow users to upload their own songs. Help from https://www.codegrepper.com/code-examples/python/file+not+in+request.files+flask
 @app.route("/upload", methods=["GET", "POST"])
 @login_required
 def upload_file():
