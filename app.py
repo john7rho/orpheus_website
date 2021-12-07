@@ -72,9 +72,6 @@ PITCHED_FOLDER = "static/pitched"
 app.config["MAX_CONTENT_PATH"] = 1000000000  # bytes (arbitrary for now)
 ALLOWED_EXTENSIONS = {"mp3", "m4a", "wav", "ogg", "wma", "flac"}
 
-# Get list of all uploaded songs
-# songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
-
 
 def login_required(f):
     """
