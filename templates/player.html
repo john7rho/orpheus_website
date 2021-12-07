@@ -1,10 +1,4 @@
-{% extends "layout.html" %}
-
-{% block title %}
-Orpheus
-{% endblock %}
-
-{% block main %}
+{% extends "layout.html" %} {% block title %} Orpheus {% endblock %} {% block main %}
 <!-- Stems -->
 <h1 class="center">
     Stem Player
@@ -26,16 +20,14 @@ Orpheus
 </table>
 <br>
 
-<button id='playaudio' onclick='playAudio()'>Play Audio</button>
-<button id='stopaudio' onclick='stopAudio()'>Stop Audio</button>
-<button id='refreshaudio' onclick='refreshAudio()'>Refresh Audio</button>
+<button id='playaudio' class="btn btn-primary" onclick='playAudio()'>Play Audio</button>
+<button id='stopaudio' class="btn btn-primary" onclick='stopAudio()'>Stop Audio</button>
+<button id='refreshaudio' class="btn btn-primary" onclick='refreshAudio()'>Refresh Audio</button>
 <br>
 <h6></h6>
 <h6></h6>
 <hr>
 <h6 class='center'>
-    Instructions: Use the buttons at the bottom (Play/Pause) to start/stop the audio.
-    Use the Refresh Audio to start the audio over.
-    To mute a stem, use the volume controls!
+    Instructions: Use the buttons at the bottom (Play/Pause) to start/stop the audio. Use the Refresh Audio to start the audio over. To mute a stem, use the volume controls!
 </h6>
 {% endblock %}

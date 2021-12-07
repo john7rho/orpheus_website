@@ -142,8 +142,8 @@ def upload_file():
     if request.method == "POST":
         # check if the post request has the file part
         if "file" not in request.files:
-            flash("No file part.")
-            return render_template("upload.html", message="No file part.")
+            flash("No file.")
+            return render_template("upload.html", message="No file.")
         file = request.files["file"]
 
         if not file:
@@ -166,7 +166,9 @@ def upload_file():
         filename = secure_filename(file.filename)
 
         # Song has already been uploaded
-        if filename in [song for song in listdir(UPLOAD_FOLDER)]:
+        if not db.execute(
+            "SELECT FROM songs WHERE song=? AND user_id=?", filename, session["user_id"]
+        ):
             flash("This song already exists in your Orpheus library.")
             return redirect("/mysongs")
 
@@ -212,7 +214,7 @@ def spleeter():
 
             flash("Stems Retrieved.")
             # Render template with stem audio
-            return render_template("player.html", stems=stems)
+            return render_template("player.html", stems=sorted(stems, reverse=True))
 
         # Make stems
         else:
