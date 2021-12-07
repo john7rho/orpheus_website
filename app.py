@@ -275,7 +275,7 @@ def login():
     if request.method == "POST":
         # Ensure username was submitted
         if not request.form.get("username") or not request.form.get("password"):
-            return redirect("/login")
+            return render_template("login.html", message='Please input a username and/or password!')
 
         # Query database for username
         rows = db.execute("SELECT * FROM users WHERE username = ?",
@@ -283,7 +283,7 @@ def login():
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-            return redirect("/login")
+            return return_template("login.html", message='Please double check your username/password!')
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
@@ -296,7 +296,7 @@ def login():
         # Forget any user_id
         session.clear()
 
-        return render_template("login.html")
+        return render_template("login.html", message='Make sure to login!')
 
 
 @app.route("/logout")
