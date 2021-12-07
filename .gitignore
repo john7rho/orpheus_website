@@ -5,3 +5,5 @@ pitch-shifter-py/
 static/stems/
 statics/pitched/
 statics/uploads/
+.*
+!/.gitignore
