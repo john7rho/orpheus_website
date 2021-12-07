@@ -1,3 +1,6 @@
 flask_session/
 __pycache__/
 pretrained_models/
+static/stems/
+statics/pitched/
+statics/uploads/
