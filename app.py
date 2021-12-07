@@ -217,10 +217,10 @@ def spleeter():
         # Make stems
         else:
             # New directory for song's stems
-            # new_folder = join(STEM_FOLDER, song_name)
+            new_folder = join(STEM_FOLDER, song_name)
 
             # Make a directory for the song's stems
-            # os.mkdir(new_folder)
+            os.mkdir(new_folder)
 
             # Spleet the song.
             os.system(
