@@ -164,7 +164,9 @@ def upload_file():
 
         # Song has already been uploaded
         if db.execute(
-            "SELECT * FROM songs WHERE song=? AND user_id=?", filename, session["user_id"]
+            "SELECT * FROM songs WHERE song=? AND user_id=?",
+            filename,
+            session["user_id"],
         ):
             flash("This song already exists in your Orpheus library.")
             return redirect("/mysongs")
@@ -337,9 +339,25 @@ def deleter():
 
         # Isolate song name
         song_name = song.rsplit(".", 1)[0]
-        
+
         # Remove files if this user is the only user with this song in their library
-        if db.execute("SELECT * FROM songs WHERE song=? AND user_id=?", song, session["user_id"]) == 1:
+        print(
+            db.execute(
+                "SELECT * FROM songs WHERE song=? AND user_id=?",
+                song,
+                session["user_id"],
+            )
+        )
+        if (
+            len(
+                db.execute(
+                    "SELECT * FROM songs WHERE song=? AND user_id=?",
+                    song,
+                    session["user_id"],
+                )
+            )
+            == 1
+        ):
             # Remove uploaded song file
             if song in [song for song in listdir(UPLOAD_FOLDER)]:
                 os.system("rm -f {}".format(UPLOAD_FOLDER + "/" + song))
@@ -351,11 +369,12 @@ def deleter():
             # Remove pitched stems
             if song_name in [song for song in listdir(PITCHED_FOLDER)]:
                 os.system("rm -rf {}".format(PITCHED_FOLDER + "/" + song_name))
-        
-        
+
         # Remove song from database
-        db.execute("DELETE FROM songs WHERE song=? AND user_id=?", song, session["user_id"])
-        
+        db.execute(
+            "DELETE FROM songs WHERE song=? AND user_id=?", song, session["user_id"]
+        )
+
         flash("Song deleted.")
 
         return redirect("/mysongs")
