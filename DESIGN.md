@@ -21,3 +21,7 @@ Once their song is uploaded, users can then navigate to the My Songs page (as me
 ## Pitch Shifter
  
 Similarly to the splitting, users can navigate to the My Songs page and press a button to pitch shift a song. If the song already has stems in the stems folder, then the Pitch Shifter API will be able to shift the individual stems by one semitone, which can then be saved to a “pitched” folder locally. From there, we can pass the directories of the pitched-up stems to the player page (player.html) and redirect the user to that page. From there, as mentioned above in the Separation section, the user can play the song and mute/edit stems as they see fit.
+
+## Deleting Songs
+
+TODO
