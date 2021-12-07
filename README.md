@@ -28,7 +28,7 @@ Flask
 Tornado Web Server
 ```
 
-### Installing
+### Installing basic requirements
 
 Installing dependencies 
 ```
@@ -36,12 +36,21 @@ pip install -r requirements.txt
 ```
 Once all packages are downloaded and installed run.
 
+### Installng the Pitch Shifter
+
+This portion allows us to pitch up songs without changing the speed. Note: Python 3.7+ is required. To install, make sure to follow the steps below:
+
 ```
-python app.py
+$ git clone https://github.com/cwoodall/pitch-shifter-py.git
+$ cd pitch-shifter-py
+$ pip install .
 ```
 
 ## Running the tests
-
+```
+To run the app, use the "flask run" command. For some systems (mainly Windows systems), it is necessary to run "python app.py" instead.
+```
+If this runs into issues, running flask run (depending on your system dependencies) will work.
 Open up your browser and visit
 ```
 http://localhost:5000

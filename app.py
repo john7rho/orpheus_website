@@ -100,7 +100,7 @@ def show_songs():
 
     if len(pathless_songs) == 0:
         flash("You have not uploaded any songs yet.")
-        return redirect('/upload')
+        return render_template('upload.html', message='You have not uploaded any songs yet.')
 
     return render_template("mysongs.html", songs=pathless_songs)
 
@@ -122,12 +122,12 @@ def upload_file():
         # check if the post request has the file part
         if 'file' not in request.files:
             flash('No file part.')
-            return redirect('/upload')
+            return render_template('upload.html', message='No file part.')
         file = request.files['file']
 
         if not file:
             flash('Invalid file.')
-            return redirect('/upload')
+            return render_template('upload.html', message='Invalid file.')
         
         # If the user does not select a file, the browser submits an empty file without a filename.
         if file.filename == '':
@@ -162,7 +162,7 @@ def spleeter():
     if request.method == 'POST':
         
         # Alert the user that this may take a minute
-        flash('Getting stems. This process may take a moment.')
+        flash('Stems Retrieving/Retrieved.')
                 
         # Get song file path
         song = request.form.get('song')
@@ -332,12 +332,12 @@ def register():
         # Ensure password was submitted
         if request.form.get("password").isalpha():
             flash("Password cannot contain only letters.")
-            return redirect("/register")
+            return render_template("register.html", message='Password cannot contain only letters.')
 
         # Passwords do not match
         if request.form.get("password") != request.form.get("confirmation"):
             flash("Passwords do not match.")
-            return redirect("/register")
+            return render_template("register.html", message='Passwords do not match.')
 
         # Insert into database
         db.execute("INSERT INTO users (username, hash) VALUES (?, ?)", request.form.get(
