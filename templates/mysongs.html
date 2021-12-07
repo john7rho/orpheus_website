@@ -1,16 +1,9 @@
-{% extends "layout.html" %}
-
-{% block title %}
-Upload
-{% endblock %}
-
-{% block main %}
+{% extends "layout.html" %} {% block title %} Upload {% endblock %} {% block main %}
 <h1 class="center">
     My Orpheus Library
 </h1>
 <h6>{{ message }}</h6>
-<h6> It might take up to a minute to process stems the first time "Get Stems" or "Shift Stems" is clicked for each song.
-    Thank you for your patience! </h6>
+<h6> It might take up to a minute to process stems the first time "Get Stems" or "Shift Stems" is clicked for each song. Thank you for your patience! </h6>
 <table class="table">
     <thead>
         <tr>
@@ -27,19 +20,19 @@ Upload
             <td>
                 <form action="/spleeter" method="POST">
                     <input type="hidden" name="song" value="{{ song['song'] }}">
-                    <input type="submit" value="Get Stems">
+                    <button class="btn btn-primary" type="submit">Get Stems</button>
                 </form>
             </td>
             <td>
                 <form action="/shifter" method="POST">
                     <input type="hidden" name="song" value="{{ song['song'] }}">
-                    <input type="submit" value="Shift Stems">
+                    <button class="btn btn-primary" type="submit">Shift Stems</button>
                 </form>
             </td>
             <td>
                 <form action="/deleter" method="POST">
                     <input type="hidden" name="song" value="{{ song['song'] }}">
-                    <input type="submit" value="Delete Song">
+                    <button class="btn btn-primary" type="submit">Delete Song</button>
                 </form>
             </td>
         </tr>
