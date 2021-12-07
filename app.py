@@ -238,7 +238,7 @@ def spleeter():
             # songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
 
             flash("Stems Retrieved.")
-            return render_template("player.html", stems=stems)
+            return render_template("player.html", stems=sorted(stems, reverse=True))
 
     else:
         return redirect("/mysongs")
