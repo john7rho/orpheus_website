@@ -1,9 +1,9 @@
-flask_session/
-__pycache__/
-pretrained_models/
-pitch-shifter-py/
-static/stems/
-statics/pitched/
-statics/uploads/
+flask_session/*
+__pycache__/*
+pretrained_models/*
+pitch-shifter-py/*
+static/stems/*
+statics/pitched/*
+statics/uploads/*
 .*
 !/.gitignore
