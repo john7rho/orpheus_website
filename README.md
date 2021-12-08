@@ -46,7 +46,7 @@ $ cd ..
  
 To run the app, run `FLASK_APP=app.py` initially to set up the flask app. Then all future executions can be done with the `flask run` command.
  
-For Windows computers, it may be necessary to run `python app.py` instead.
+If this does not work (such as on some Windows computers), it may be necessary to run `python app.py`.
  
 Once the web server is up and running, open up your browser and visit
  
