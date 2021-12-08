@@ -30,7 +30,7 @@ pip install -r requirements.txt
  
 ### Installing the Pitch Shifter
  
-The pitch shifter allows us to pitch up songs without changing the speed. Note: Python 3.7+ is required. To install, make sure to follow the steps below:
+The pitch shifter allows us to pitch up songs without changing the speed. Note: Python 3.7+ is required. To install, make sure that you are in the project directory and follow the steps below:
  
 ```
 $ git clone https://github.com/cwoodall/pitch-shifter-py.git
@@ -46,10 +46,11 @@ $ cd ..
  
 To run the app, run `FLASK_APP=app.py` initially to set up the flask app. Then all future executions can be done with the `flask run` command.
  
-For Windows computers, it may be necessary to run `python app.py` instead.
+If this does not work (such as on some Windows computers), it may be necessary to run `python app.py`.
  
 Once the web server is up and running, open up your browser and visit
  
 ```
 http://localhost:5000
 ```
+[https://www.youtube.com/watch?v=A0xaP308D7I](https://www.youtube.com/watch?v=A0xaP308D7I)
