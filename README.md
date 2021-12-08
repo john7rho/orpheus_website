@@ -30,7 +30,7 @@ pip install -r requirements.txt
  
 ### Installing the Pitch Shifter
  
-The pitch shifter allows us to pitch up songs without changing the speed. Note: Python 3.7+ is required. To install, make sure that you are in the orpheus_website directory follow the steps below:
+The pitch shifter allows us to pitch up songs without changing the speed. Note: Python 3.7+ is required. To install, make sure that you are in the project directory and follow the steps below:
  
 ```
 $ git clone https://github.com/cwoodall/pitch-shifter-py.git
