@@ -1,5 +1,6 @@
 import sys
 import os
+import shutil
 from flask import (
     Flask,
     render_template,
@@ -9,6 +10,8 @@ from flask import (
     flash,
     send_from_directory,
     session,
+    send_file,
+    abort,
 )
 from flask_session import Session
 from werkzeug.utils import secure_filename
@@ -188,199 +191,196 @@ def upload_file():
 
 
 # Spleeter
-@app.route("/spleeter", methods=["GET", "POST"])
+@app.route("/spleeter", methods=["POST"])
 @login_required
 def spleeter():
-    if request.method == "POST":
+    # Get song file path
+    song = request.form.get("song")
 
-        # Get song file path
-        song = request.form.get("song")
+    # Correct path to include working directory
+    song_path = join(UPLOAD_FOLDER, song)
 
-        # Correct path to include working directory
-        song_path = join(UPLOAD_FOLDER, song)
+    # Isolate song name
+    song_name = song.rsplit(".", 1)[0]
 
-        # Isolate song name
-        song_name = song.rsplit(".", 1)[0]
+    # If folder exists, stems already exist
+    if song_name in [song for song in listdir(STEM_FOLDER)]:
 
-        # If folder exists, stems already exist
-        if song_name in [song for song in listdir(STEM_FOLDER)]:
+        # Generate a list of stem paths
+        stems = [
+            STEM_FOLDER + "/" + song_name + "/" + stem
+            for stem in listdir(STEM_FOLDER + "/" + song_name)
+        ]
 
-            # Generate a list of stem paths
-            stems = [
-                STEM_FOLDER + "/" + song_name + "/" + stem
-                for stem in listdir(STEM_FOLDER + "/" + song_name)
-            ]
+        flash("Stems Retrieved.")
+        # Render template with stem audio
+        return render_template("player.html", stems=sorted(stems, reverse=True))
 
-            flash("Stems Retrieved.")
-            # Render template with stem audio
-            return render_template("player.html", stems=sorted(stems, reverse=True))
-
-        # Make stems
-        else:
-            # New directory for song's stems
-            new_folder = join(STEM_FOLDER, song_name)
-
-            # Make a directory for the song's stems
-            os.mkdir(new_folder)
-
-            # Spleet the song.
-            os.system(
-                "spleeter separate {} -p spleeter:5stems -o {}".format(
-                    song_path, STEM_FOLDER
-                )
-            )
-
-            # Create list of stems
-            stems = [
-                STEM_FOLDER + "/" + song_name + "/" + stem
-                for stem in listdir(STEM_FOLDER + "/" + song_name)
-            ]
-
-            # add the songs
-            # songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
-
-            flash("Stems Retrieved.")
-            return render_template("player.html", stems=sorted(stems, reverse=True))
-
+    # Make stems
     else:
-        return redirect("/mysongs")
-
-
-# Pitch shifter
-@app.route("/shifter", methods=["GET", "POST"])
-@login_required
-def shifter():
-    if request.method == "POST":
-
-        # Get song file path
-        song = request.form.get("song")
-
-        # Isolate song name
-        song_name = song.rsplit(".", 1)[0]
-
-        # Create song path
-        song_path = join(STEM_FOLDER, song_name)
-
-        # Check if the stems don't exist
-        if song_name not in [song for song in listdir(STEM_FOLDER)]:
-
-            # Return error that the songs' stems do not exist
-            return render_template(
-                "mysongs.html", message="Make sure to hit the Get Stems button first!"
-            )
-
-        # If folder exists, stems already exist
-        if song_name in [song for song in listdir(PITCHED_FOLDER)]:
-
-            # Generate a list of stem paths
-            stems = [
-                PITCHED_FOLDER + "/" + song_name + "/" + stem
-                for stem in listdir(PITCHED_FOLDER + "/" + song_name)
-            ]
-
-            # Render template with stem audio
-            return render_template("player.html", stems=stems)
-
         # New directory for song's stems
-        pitched_folder = "static/pitched/" + song_name
+        new_folder = join(STEM_FOLDER, song_name)
 
-        # Paths for current stems and pitched stems
-        current_vocals = song_path + "/vocals.wav"
-        current_bass = song_path + "/bass.wav"
-        current_other = song_path + "/other.wav"
-        current_piano = song_path + "/piano.wav"
-        current_drums = song_path + "/drums.wav"
-
-        shift_vocals = pitched_folder + "/vocals.wav"
-        shift_bass = pitched_folder + "/bass.wav"
-        shift_other = pitched_folder + "/other.wav"
-        shift_piano = pitched_folder + "/piano.wav"
-        shift_drums = pitched_folder + "/drums.wav"
-
-        # Make folder for the new pitched stems
-        os.mkdir(pitched_folder)
+        # Make a directory for the song's stems
+        os.mkdir(new_folder)
 
         # Spleet the song.
         os.system(
-            "pitchshifter -s {} -o {} -p 1 -b 1".format(current_vocals, shift_vocals)
-        )
-        os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_bass, shift_bass))
-        os.system(
-            "pitchshifter -s {} -o {} -p 1 -b 1".format(current_other, shift_other)
-        )
-        os.system(
-            "pitchshifter -s {} -o {} -p 1 -b 1".format(current_piano, shift_piano)
-        )
-        os.system(
-            "pitchshifter -s {} -o {} -p 1 -b 1".format(current_drums, shift_drums)
+            "spleeter separate {} -p spleeter:5stems -o {}".format(
+                song_path, STEM_FOLDER
+            )
         )
 
-        # Create list of stems.
-        pitched_stems = [
+        # Create list of stems
+        stems = [
+            STEM_FOLDER + "/" + song_name + "/" + stem
+            for stem in listdir(STEM_FOLDER + "/" + song_name)
+        ]
+
+        # add the songs
+        # songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
+
+        flash("Stems Retrieved.")
+        return render_template("player.html", stems=sorted(stems, reverse=True))
+
+
+# Pitch shifter
+@app.route("/shifter", methods=["POST"])
+@login_required
+def shifter():
+    # Get song file path
+    song = request.form.get("song")
+
+    # Isolate song name
+    song_name = song.rsplit(".", 1)[0]
+
+    # Create song path
+    song_path = join(STEM_FOLDER, song_name)
+
+    # Check if the stems don't exist
+    if song_name not in [song for song in listdir(STEM_FOLDER)]:
+
+        # Return error that the songs' stems do not exist
+        return render_template(
+            "mysongs.html", message="Make sure to hit the Get Stems button first!"
+        )
+
+    # If folder exists, stems already exist
+    if song_name in [song for song in listdir(PITCHED_FOLDER)]:
+
+        # Generate a list of stem paths
+        stems = [
             PITCHED_FOLDER + "/" + song_name + "/" + stem
             for stem in listdir(PITCHED_FOLDER + "/" + song_name)
         ]
 
-        return render_template("player.html", stems=pitched_stems)
+        # Render template with stem audio
+        return render_template("player.html", stems=stems)
 
-    else:
-        return redirect("/mysongs")
+    # New directory for song's stems
+    pitched_folder = "static/pitched/" + song_name
+
+    # Paths for current stems and pitched stems
+    current_vocals = song_path + "/vocals.wav"
+    current_bass = song_path + "/bass.wav"
+    current_other = song_path + "/other.wav"
+    current_piano = song_path + "/piano.wav"
+    current_drums = song_path + "/drums.wav"
+
+    shift_vocals = pitched_folder + "/vocals.wav"
+    shift_bass = pitched_folder + "/bass.wav"
+    shift_other = pitched_folder + "/other.wav"
+    shift_piano = pitched_folder + "/piano.wav"
+    shift_drums = pitched_folder + "/drums.wav"
+
+    # Make folder for the new pitched stems
+    os.mkdir(pitched_folder)
+
+    # Spleet the song.
+    os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_vocals, shift_vocals))
+    os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_bass, shift_bass))
+    os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_other, shift_other))
+    os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_piano, shift_piano))
+    os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_drums, shift_drums))
+
+    # Create list of stems.
+    pitched_stems = [
+        PITCHED_FOLDER + "/" + song_name + "/" + stem
+        for stem in listdir(PITCHED_FOLDER + "/" + song_name)
+    ]
+
+    return render_template("player.html", stems=pitched_stems)
 
 
-@app.route("/deleter", methods=["GET", "POST"])
+@app.route("/deleter", methods=["POST"])
 @login_required
 def deleter():
-    if request.method == "POST":
-        # Get song file path
-        song = request.form.get("song")
+    # Get song file path
+    song = request.form.get("song")
 
-        # Correct path to include working directory
-        song_path = join(UPLOAD_FOLDER, song)
+    # Isolate song name
+    song_name = song.rsplit(".", 1)[0]
 
-        # Isolate song name
-        song_name = song.rsplit(".", 1)[0]
-
-        # Remove files if this user is the only user with this song in their library
-        print(
+    # Remove files if this user is the only user with this song in their library
+    print(
+        db.execute(
+            "SELECT * FROM songs WHERE song=? AND user_id=?",
+            song,
+            session["user_id"],
+        )
+    )
+    if (
+        len(
             db.execute(
                 "SELECT * FROM songs WHERE song=? AND user_id=?",
                 song,
                 session["user_id"],
             )
         )
-        if (
-            len(
-                db.execute(
-                    "SELECT * FROM songs WHERE song=? AND user_id=?",
-                    song,
-                    session["user_id"],
+        == 1
+    ):
+        # Remove uploaded song file
+        if song in [song for song in listdir(UPLOAD_FOLDER)]:
+            os.system("rm -f {}".format(UPLOAD_FOLDER + "/" + song))
+
+        # Remove stems
+        if song_name in [song for song in listdir(STEM_FOLDER)]:
+            os.system("rm -rf {}".format(STEM_FOLDER + "/" + song_name))
+
+        # Remove pitched stems
+        if song_name in [song for song in listdir(PITCHED_FOLDER)]:
+            os.system("rm -rf {}".format(PITCHED_FOLDER + "/" + song_name))
+
+    # Remove song from database
+    db.execute("DELETE FROM songs WHERE song=? AND user_id=?", song, session["user_id"])
+
+    flash("Song deleted.")
+
+    return redirect("/mysongs")
+
+
+@app.route("/download")
+def DownloadLogFile(methods=["POST"]):
+    # Get song file path
+    song = request.form.get("song")
+
+    # Isolate song name
+    song_name = song.rsplit(".", 1)[0]
+
+    try:
+        if song_name in [song for song in listdir(STEM_FOLDER)]:
+            if song_name not in [song for song in listdir(STEM_FOLDER + "/zipped")]:
+                shutil.make_archive(
+                    STEM_FOLDER + "/zipped/" + "song_name",
+                    "zip",
+                    root_dir=STEM_FOLDER + "/zipped/",
+                    base_dir="..",
                 )
+            return send_file(
+                STEM_FOLDER + "/zipped/" + song_name + ".zip", as_attachment=True
             )
-            == 1
-        ):
-            # Remove uploaded song file
-            if song in [song for song in listdir(UPLOAD_FOLDER)]:
-                os.system("rm -f {}".format(UPLOAD_FOLDER + "/" + song))
-
-            # Remove stems
-            if song_name in [song for song in listdir(STEM_FOLDER)]:
-                os.system("rm -rf {}".format(STEM_FOLDER + "/" + song_name))
-
-            # Remove pitched stems
-            if song_name in [song for song in listdir(PITCHED_FOLDER)]:
-                os.system("rm -rf {}".format(PITCHED_FOLDER + "/" + song_name))
-
-        # Remove song from database
-        db.execute(
-            "DELETE FROM songs WHERE song=? AND user_id=?", song, session["user_id"]
-        )
-
-        flash("Song deleted.")
-
-        return redirect("/mysongs")
-
-    else:
-        return redirect("/mysongs")
+    except Exception:
+        abort(400)
 
 
 @app.route("/favicon.ico")
