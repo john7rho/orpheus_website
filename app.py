@@ -174,6 +174,10 @@ def upload_file():
             flash("This song already exists in your Orpheus library.")
             return redirect("/mysongs")
 
+        # Check if upload folder exists
+        if not os.path.exists(UPLOAD_FOLDER):
+            os.makedirs(UPLOAD_FOLDER)
+
         file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
         # Insert song into database
         db.execute(
