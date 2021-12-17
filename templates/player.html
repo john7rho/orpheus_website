@@ -23,11 +23,10 @@
 <button id='playaudio' class="btn btn-primary" onclick='playAudio()'>Play Audio</button>
 <button id='stopaudio' class="btn btn-primary" onclick='stopAudio()'>Stop Audio</button>
 <button id='refreshaudio' class="btn btn-primary" onclick='refreshAudio()'>Refresh Audio</button>
+<a href={{ download }}><button id='download' class="btn btn-primary">Download Stems</button></a>
 <br>
-<h6></h6>
-<h6></h6>
 <hr>
 <h6 class='center'>
-    Instructions: Use the buttons at the bottom (Play/Pause) to start/stop the audio. Use the Refresh Audio to start the audio over. To mute a stem, use the volume controls!
+    Instructions: Use the buttons at the bottom (Play/Pause) to start/stop the audio in sync. Use the Refresh Audio to resync all stems to the beginning. To change the volume or mute a stem, use the volume controls!
 </h6>
 {% endblock %}

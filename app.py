@@ -218,7 +218,7 @@ def spleeter():
 
         flash("Stems Retrieved.")
         # Render template with stem audio
-        return render_template("player.html", stems=sorted(stems, reverse=True))
+        return render_template("player.html", stems=sorted(stems, reverse=True)[1:], download=join("static/zipped/", song_name, "stems.zip"))
 
     # Make stems
     else:
@@ -226,7 +226,7 @@ def spleeter():
         new_folder = join(STEM_FOLDER, song_name)
 
         # Make a directory for the song's stems
-        os.mkdir(new_folder)
+        os.makedirs(new_folder)
 
         # Spleet the song.
         os.system(
@@ -235,17 +235,24 @@ def spleeter():
             )
         )
 
+        # Make a directory for the song's stems zip file
+        os.makedirs(join("static/zipped", song_name))
+
+        # Zip the files
+        shutil.make_archive(
+            join("static/zipped/", song_name, "stems"),
+            "zip",
+            root_dir=join("static/stems", song_name),
+        )
+
         # Create list of stems
         stems = [
-            STEM_FOLDER + "/" + song_name + "/" + stem
-            for stem in listdir(STEM_FOLDER + "/" + song_name)
+            join(STEM_FOLDER, song_name, stem)
+            for stem in listdir(join(STEM_FOLDER, song_name))
         ]
 
-        # add the songs
-        # songs = [f for f in listdir(UPLOAD_FOLDER) if isfile(join(UPLOAD_FOLDER, f))]
-
         flash("Stems Retrieved.")
-        return render_template("player.html", stems=sorted(stems, reverse=True))
+        return render_template("player.html", stems=sorted(stems, reverse=True), download=join("static/zipped/", song_name, "stems.zip"))
 
 
 # Pitch shifter
@@ -279,7 +286,7 @@ def shifter():
         ]
 
         # Render template with stem audio
-        return render_template("player.html", stems=stems)
+        return render_template("player.html", stems=stems, download=join("static/zipped/", song_name, "pitched.zip"))
 
     # New directory for song's stems
     pitched_folder = "static/pitched/" + song_name
@@ -298,7 +305,7 @@ def shifter():
     shift_drums = pitched_folder + "/drums.wav"
 
     # Make folder for the new pitched stems
-    os.mkdir(pitched_folder)
+    os.makedirs(pitched_folder)
 
     # Spleet the song.
     os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_vocals, shift_vocals))
@@ -307,13 +314,20 @@ def shifter():
     os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_piano, shift_piano))
     os.system("pitchshifter -s {} -o {} -p 1 -b 1".format(current_drums, shift_drums))
 
+    # Zip the files
+    shutil.make_archive(
+        join("static/zipped/", song_name, "pitched"),
+        "zip",
+        root_dir=join("static/pitched", song_name),
+    )
+
     # Create list of stems.
     pitched_stems = [
         PITCHED_FOLDER + "/" + song_name + "/" + stem
         for stem in listdir(PITCHED_FOLDER + "/" + song_name)
     ]
 
-    return render_template("player.html", stems=pitched_stems)
+    return render_template("player.html", stems=pitched_stems, download=join("static/zipped/", song_name, "pitched.zip"))
 
 
 @app.route("/deleter", methods=["POST"])
@@ -345,15 +359,20 @@ def deleter():
     ):
         # Remove uploaded song file
         if song in [song for song in listdir(UPLOAD_FOLDER)]:
-            os.system("rm -f {}".format(UPLOAD_FOLDER + "/" + song))
+            os.system("rm -f {}".format(join(UPLOAD_FOLDER, song)))
 
         # Remove stems
         if song_name in [song for song in listdir(STEM_FOLDER)]:
-            os.system("rm -rf {}".format(STEM_FOLDER + "/" + song_name))
+            os.system("rm -rf {}".format(join(STEM_FOLDER, song_name)))
 
         # Remove pitched stems
         if song_name in [song for song in listdir(PITCHED_FOLDER)]:
-            os.system("rm -rf {}".format(PITCHED_FOLDER + "/" + song_name))
+            os.system("rm -rf {}".format(join(PITCHED_FOLDER, song_name)))
+
+        # Remove zipped stems
+        if song_name in [song for song in listdir("static/zipped")]:
+            os.system("rm -rf {}".format(join("static/zipped", song_name)))
+
 
     # Remove song from database
     db.execute("DELETE FROM songs WHERE song=? AND user_id=?", song, session["user_id"])
@@ -361,30 +380,6 @@ def deleter():
     flash("Song deleted.")
 
     return redirect("/mysongs")
-
-
-@app.route("/download")
-def DownloadLogFile(methods=["POST"]):
-    # Get song file path
-    song = request.form.get("song")
-
-    # Isolate song name
-    song_name = song.rsplit(".", 1)[0]
-
-    try:
-        if song_name in [song for song in listdir(STEM_FOLDER)]:
-            if song_name not in [song for song in listdir(STEM_FOLDER + "/zipped")]:
-                shutil.make_archive(
-                    STEM_FOLDER + "/zipped/" + "song_name",
-                    "zip",
-                    root_dir=STEM_FOLDER + "/zipped/",
-                    base_dir="..",
-                )
-            return send_file(
-                STEM_FOLDER + "/zipped/" + song_name + ".zip", as_attachment=True
-            )
-    except Exception:
-        abort(400)
 
 
 @app.route("/favicon.ico")
