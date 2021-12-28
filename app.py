@@ -207,6 +207,10 @@ def spleeter():
     # Isolate song name
     song_name = song.rsplit(".", 1)[0]
 
+    # Check if upload folder exists
+    if not os.path.exists(STEM_FOLDER):
+        os.makedirs(STEM_FOLDER)
+
     # If folder exists, stems already exist
     if song_name in [song for song in listdir(STEM_FOLDER)]:
 
@@ -267,6 +271,10 @@ def shifter():
 
     # Create song path
     song_path = join(STEM_FOLDER, song_name)
+
+    # Check if pitched folder exists
+    if not os.path.exists(PITCHED_FOLDER):
+        os.makedirs(PITCHED_FOLDER)
 
     # Check if the stems don't exist
     if song_name not in [song for song in listdir(STEM_FOLDER)]:
